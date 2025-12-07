@@ -13,7 +13,7 @@ public class ViewBox extends Frame {
 
 	public ViewBox(boolean arg0, int arg1, GameShell arg2, int arg3) {
 		this.shell = arg2;
-		this.setTitle("RS2 user client - release #" + signlink.clientversion);
+		this.setTitle("VortexScape");
 		this.setResizable(false);
 
 		BorderLayout manager = new BorderLayout();
