@@ -1320,9 +1320,6 @@ public class Client extends GameShell {
 				}
 				signlink.storeid = Integer.parseInt(arg0[4]);
 				signlink.startpriv(InetAddress.getLocalHost());
-				//signlink.startpriv(InetAddress.getByName("151.241.99.9"));
-				System.out.println(InetAddress.getByName("151.241.99.9").toString());
-				System.out.println(InetAddress.getLocalHost().toString());
 				Client var1 = new Client();
 				var1.initApplication(765, 503);
 			} else {
