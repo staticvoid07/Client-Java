@@ -1275,6 +1275,8 @@ public class Client extends GameShell {
 	@ObfuscatedName("client.Ug")
 	public byte[][][] mapl;
 
+	public static String ip;
+
 	static {
 		int var0 = 2;
 		for (int var1 = 0; var1 < 32; var1++) {
@@ -1296,9 +1298,10 @@ public class Client extends GameShell {
 	public static void main(String[] arg0) {
 		try {
 			System.out.println("RS2 user client - release #" + signlink.clientversion);
-			if (arg0.length == 5) {
+			if (arg0.length == 6) {
 				nodeId = Integer.parseInt(arg0[0]);
 				portOffset = Integer.parseInt(arg0[1]);
+				ip = arg0[5];
 				if (arg0[2].equals("lowmem")) {
 					setLowMem();
 				} else if (arg0[2].equals("highmem")) {
@@ -1317,6 +1320,9 @@ public class Client extends GameShell {
 				}
 				signlink.storeid = Integer.parseInt(arg0[4]);
 				signlink.startpriv(InetAddress.getLocalHost());
+				//signlink.startpriv(InetAddress.getByName("151.241.99.9"));
+				System.out.println(InetAddress.getByName("151.241.99.9").toString());
+				System.out.println(InetAddress.getLocalHost().toString());
 				Client var1 = new Client();
 				var1.initApplication(765, 503);
 			} else {
@@ -1329,6 +1335,7 @@ public class Client extends GameShell {
 	public void init() {
 		nodeId = Integer.parseInt(this.getParameter("nodeid"));
 		portOffset = Integer.parseInt(this.getParameter("portoff"));
+		ip = String.valueOf(this.getParameter("ip"));
 		String var1 = this.getParameter("lowmem");
 		if (var1 != null && var1.equals("1")) {
 			setLowMem();
@@ -1376,7 +1383,7 @@ public class Client extends GameShell {
 		}
 		try {
 			if (super.frame != null) {
-				return new URL("http://127.0.0.1:" + (portOffset + 80));
+				return new URL("http://" + ip + ":" + (portOffset + 80));
 			}
 		} catch (Exception var1) {
 		}
