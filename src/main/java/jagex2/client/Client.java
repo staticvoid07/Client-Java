@@ -2962,10 +2962,10 @@ public class Client extends GameShell {
 			this.handleInputKey();
 			super.idleCycles++;
 			if (super.idleCycles > 4500) {
-				this.pendingLogout = 250;
-				super.idleCycles -= 500;
+				//this.pendingLogout = 250;
+				//super.idleCycles -= 500;
 				// IDLE_TIMER
-				this.out.pIsaac(144);
+				//this.out.pIsaac(144);
 			}
 			this.macroCameraCycle++;
 			if (this.macroCameraCycle > 500) {
