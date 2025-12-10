@@ -2398,7 +2398,7 @@ public class Client extends GameShell {
 				this.loginMes2 = "Connecting to server...";
 				this.titleScreenDraw(true);
 			}
-			this.stream = new ClientStream(this, this.openSocket(portOffset + 43594));
+			this.stream = new ClientStream(this, this.openSocket(43594));
 			long var4 = JString.toBase37(arg0);
 			int var6 = (int) (var4 >> 16 & 0x1FL);
 			this.out.pos = 0;
@@ -2965,67 +2965,67 @@ public class Client extends GameShell {
 			}
 			this.handleInputKey();
 			super.idleCycles++;
-			if (super.idleCycles > 4500) {
-				//this.pendingLogout = 250;
-				//super.idleCycles -= 500;
-				// IDLE_TIMER
-				//this.out.pIsaac(144);
-			}
-			this.macroCameraCycle++;
-			if (this.macroCameraCycle > 500) {
-				this.macroCameraCycle = 0;
-				int var31 = (int) (Math.random() * 8.0D);
-				if ((var31 & 0x1) == 1) {
-					this.macroCameraX += this.macroCameraXModifier;
-				}
-				if ((var31 & 0x2) == 2) {
-					this.macroCameraZ += this.macroCameraZModifier;
-				}
-				if ((var31 & 0x4) == 4) {
-					this.macroCameraAngle += this.macroCameraAngleModifier;
-				}
-			}
-			if (this.macroCameraX < -50) {
-				this.macroCameraXModifier = 2;
-			}
-			if (this.macroCameraX > 50) {
-				this.macroCameraXModifier = -2;
-			}
-			if (this.macroCameraZ < -55) {
-				this.macroCameraZModifier = 2;
-			}
-			if (this.macroCameraZ > 55) {
-				this.macroCameraZModifier = -2;
-			}
-			if (this.macroCameraAngle < -40) {
-				this.macroCameraAngleModifier = 1;
-			}
-			if (this.macroCameraAngle > 40) {
-				this.macroCameraAngleModifier = -1;
-			}
-			this.macroMinimapCycle++;
-			if (this.macroMinimapCycle > 500) {
-				this.macroMinimapCycle = 0;
-				int var32 = (int) (Math.random() * 8.0D);
-				if ((var32 & 0x1) == 1) {
-					this.macroMinimapAngle += this.macroMinimapAngleModifier;
-				}
-				if ((var32 & 0x2) == 2) {
-					this.macroMinimapZoom += this.macroMinimapZoomModifier;
-				}
-			}
-			if (this.macroMinimapAngle < -60) {
-				this.macroMinimapAngleModifier = 2;
-			}
-			if (this.macroMinimapAngle > 60) {
-				this.macroMinimapAngleModifier = -2;
-			}
-			if (this.macroMinimapZoom < -20) {
-				this.macroMinimapZoomModifier = 1;
-			}
-			if (this.macroMinimapZoom > 10) {
-				this.macroMinimapZoomModifier = -1;
-			}
+			// if (super.idleCycles > 4500) {
+			// 	//this.pendingLogout = 250;
+			// 	//super.idleCycles -= 500;
+			// 	// IDLE_TIMER
+			// 	//this.out.pIsaac(144);
+			// }
+			// this.macroCameraCycle++;
+			// if (this.macroCameraCycle > 500) {
+			// 	this.macroCameraCycle = 0;
+			// 	int var31 = (int) (Math.random() * 8.0D);
+			// 	if ((var31 & 0x1) == 1) {
+			// 		this.macroCameraX += this.macroCameraXModifier;
+			// 	}
+			// 	if ((var31 & 0x2) == 2) {
+			// 		this.macroCameraZ += this.macroCameraZModifier;
+			// 	}
+			// 	if ((var31 & 0x4) == 4) {
+			// 		this.macroCameraAngle += this.macroCameraAngleModifier;
+			// 	}
+			// }
+			// if (this.macroCameraX < -50) {
+			// 	this.macroCameraXModifier = 2;
+			// }
+			// if (this.macroCameraX > 50) {
+			// 	this.macroCameraXModifier = -2;
+			// }
+			// if (this.macroCameraZ < -55) {
+			// 	this.macroCameraZModifier = 2;
+			// }
+			// if (this.macroCameraZ > 55) {
+			// 	this.macroCameraZModifier = -2;
+			// }
+			// if (this.macroCameraAngle < -40) {
+			// 	this.macroCameraAngleModifier = 1;
+			// }
+			// if (this.macroCameraAngle > 40) {
+			// 	this.macroCameraAngleModifier = -1;
+			// }
+			// this.macroMinimapCycle++;
+			// if (this.macroMinimapCycle > 500) {
+			// 	this.macroMinimapCycle = 0;
+			// 	int var32 = (int) (Math.random() * 8.0D);
+			// 	if ((var32 & 0x1) == 1) {
+			// 		this.macroMinimapAngle += this.macroMinimapAngleModifier;
+			// 	}
+			// 	if ((var32 & 0x2) == 2) {
+			// 		this.macroMinimapZoom += this.macroMinimapZoomModifier;
+			// 	}
+			// }
+			// if (this.macroMinimapAngle < -60) {
+			// 	this.macroMinimapAngleModifier = 2;
+			// }
+			// if (this.macroMinimapAngle > 60) {
+			// 	this.macroMinimapAngleModifier = -2;
+			// }
+			// if (this.macroMinimapZoom < -20) {
+			// 	this.macroMinimapZoomModifier = 1;
+			// }
+			// if (this.macroMinimapZoom > 10) {
+			// 	this.macroMinimapZoomModifier = -1;
+			// }
 			this.noTimeoutCycle++;
 			if (this.noTimeoutCycle > 50) {
 				// NO_TIMEOUT

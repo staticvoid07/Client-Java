@@ -693,7 +693,7 @@ public class OnDemand extends OnDemandProvider implements Runnable {
 					return;
 				}
 				this.socketOpenTime = var3;
-				this.socket = this.app.openSocket(Client.portOffset + 43594);
+				this.socket = this.app.openSocket(43594);
 				this.in = this.socket.getInputStream();
 				this.out = this.socket.getOutputStream();
 				this.out.write(15);
