@@ -1859,7 +1859,7 @@ public class Client extends GameShell {
 				var65[var66] = var68 * var69 >> 16;
 			}
 			World.init(500, 512, 334, 800, var65);
-			WordFilter.unpack(var13);
+			//WordFilter.unpack(var13);
 			this.mouseTracking = new MouseTracking(this);
 			this.startThread(this.mouseTracking, 10);
 		} catch (Exception var81) {
@@ -4315,7 +4315,7 @@ public class Client extends GameShell {
 								WordPack.pack(this.out, this.socialInput);
 								this.out.psize1(this.out.pos - var7);
 								this.socialInput = JString.toSentenceCase(this.socialInput);
-								this.socialInput = WordFilter.filter(this.socialInput);
+								//this.socialInput = WordFilter.filter(this.socialInput);
 								this.addChat(JString.formatDisplayName(JString.fromBase37(this.socialName37)), 6, this.socialInput);
 								if (this.chatPrivateMode == 2) {
 									this.chatPrivateMode = 1;
@@ -4455,7 +4455,7 @@ public class Client extends GameShell {
 								WordPack.pack(this.out, this.chatTyped);
 								this.out.psize1(this.out.pos - var16);
 								this.chatTyped = JString.toSentenceCase(this.chatTyped);
-								this.chatTyped = WordFilter.filter(this.chatTyped);
+								//this.chatTyped = WordFilter.filter(this.chatTyped);
 								localPlayer.chatMessage = this.chatTyped;
 								localPlayer.chatColour = var14;
 								localPlayer.chatEffect = var15;
@@ -7069,7 +7069,7 @@ public class Client extends GameShell {
 						this.messageIds[this.privateMessageCount] = var68;
 						this.privateMessageCount = (this.privateMessageCount + 1) % 100;
 						String var73 = WordPack.unpack(this.in, this.psize - 13);
-						String var74 = WordFilter.filter(var73);
+						String var74 = var73;//WordFilter.filter(var73);
 						if (var69 == 2 || var69 == 3) {
 							this.addChat("@cr2@" + JString.formatDisplayName(JString.fromBase37(var66)), 7, var74);
 						} else if (var69 == 1) {
@@ -8216,7 +8216,7 @@ public class Client extends GameShell {
 				if (!var20 && this.worldLocationState == 0) {
 					try {
 						String var22 = WordPack.unpack(arg1, var16);
-						String var23 = WordFilter.filter(var22);
+						String var23 = var22;//WordFilter.filter(var22);
 						arg4.chatMessage = var23;
 						arg4.chatColour = var14 >> 8;
 						arg4.chatEffect = var14 & 0xFF;
