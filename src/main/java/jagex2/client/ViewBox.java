@@ -4,6 +4,10 @@ import deob.ObfuscatedName;
 import sign.signlink;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
 
 @ObfuscatedName("b")
 public class ViewBox extends Frame {
@@ -15,6 +19,9 @@ public class ViewBox extends Frame {
 		this.shell = arg2;
 		this.setTitle("VortexScape");
 		this.setResizable(false);
+
+		Image icon = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/icon.png"));
+		this.setIconImage(icon);
 
 		BorderLayout manager = new BorderLayout();
 		this.setLayout(manager);
