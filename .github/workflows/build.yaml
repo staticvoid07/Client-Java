@@ -92,6 +92,33 @@ jobs:
         EOF
         cat build/dist/manifest.json
 
+    - name: Package per-platform downloads
+      run: |
+        set -eu
+        CHANNEL='${{ steps.meta.outputs.channel }}'
+
+        # One zip per platform so the website can hand out the right file directly,
+        # rather than making people pick the correct script out of a combined zip.
+        # Each contains only the launcher - the client itself is downloaded at run
+        # time, which is the whole point of the launcher.
+        rm -rf build/pkg && mkdir -p build/pkg/win build/pkg/lin
+
+        cp launcher/build/libs/vortexscape-launcher.jar build/pkg/win/
+        cp launcher/build/libs/vortexscape-launcher.jar build/pkg/lin/
+
+        if [ "$CHANNEL" = "live" ]; then
+          cp "packaging/launch vortexscape.bat" build/pkg/win/
+          cp packaging/vortexscape.sh build/pkg/lin/
+        else
+          cp "packaging/launch vortexscape staging.bat" build/pkg/win/
+          cp packaging/vortexscape-staging.sh build/pkg/lin/
+        fi
+        chmod +x build/pkg/lin/*.sh
+
+        (cd build/pkg/win && zip -qr "../../dist/vortexscape-$CHANNEL-windows.zip" .)
+        (cd build/pkg/lin && zip -qr "../../dist/vortexscape-$CHANNEL-linux.zip" .)
+        ls -la build/dist/
+
     - name: Publish to the channel release
       env:
         GH_TOKEN: ${{ github.token }}
@@ -117,6 +144,8 @@ jobs:
         # hash - which fails verification and falls back to the cached copy.
         gh release upload "$CHANNEL" build/dist/rs2client.jar --clobber
         gh release upload "$CHANNEL" build/dist/vortexscape-launcher.jar --clobber
+        gh release upload "$CHANNEL" "build/dist/vortexscape-$CHANNEL-windows.zip" --clobber
+        gh release upload "$CHANNEL" "build/dist/vortexscape-$CHANNEL-linux.zip" --clobber
         gh release upload "$CHANNEL" build/dist/manifest.json --clobber
 
         gh release edit "$CHANNEL" --notes "Rolling $CHANNEL client build - $VERSION (${{ github.sha }})"
