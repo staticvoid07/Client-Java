@@ -1,0 +1,43 @@
+<launch4jConfig>
+  <!--
+    STAGING build. Identical to launch4j-live.xml except for the baked-in
+    arguments: staging channel, staging manifest, portOffset 1 (game port 43595,
+    client cache over http port 81) and the staging host.
+
+    The launcher keys its cache directory on the channel, so this build can never
+    overwrite the live client's jar - a tester can keep both installed.
+
+    Build:  launch4jc launch4j-staging.xml
+  -->
+  <dontWrapJar>false</dontWrapJar>
+  <headerType>gui</headerType>
+  <jar>../launcher/build/libs/vortexscape-launcher.jar</jar>
+  <outfile>../build/dist/vortexscape-staging.exe</outfile>
+  <errTitle>VortexScape (staging)</errTitle>
+  <downloadUrl>https://www.java.com/download/</downloadUrl>
+  <chdir>.</chdir>
+  <priority>normal</priority>
+  <stayAlive>false</stayAlive>
+  <restartOnCrash>false</restartOnCrash>
+  <icon>vortexscape.ico</icon>
+
+  <cmdLine>staging https://vortexidle.com/client/staging/manifest.json 10 1 highmem members 32 staging.vortexidle.com</cmdLine>
+
+  <jre>
+    <minVersion>1.8.0</minVersion>
+    <requiresJdk>false</requiresJdk>
+    <requires64Bit>false</requires64Bit>
+  </jre>
+
+  <versionInfo>
+    <fileVersion>1.0.0.0</fileVersion>
+    <txtFileVersion>1.0.0</txtFileVersion>
+    <fileDescription>VortexScape (staging)</fileDescription>
+    <copyright>VortexScape</copyright>
+    <productVersion>1.0.0.0</productVersion>
+    <txtProductVersion>1.0.0</txtProductVersion>
+    <productName>VortexScape Staging</productName>
+    <internalName>vortexscape-staging</internalName>
+    <originalFilename>vortexscape-staging.exe</originalFilename>
+  </versionInfo>
+</launch4jConfig>
