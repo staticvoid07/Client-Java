@@ -2398,7 +2398,7 @@ public class Client extends GameShell {
 				this.loginMes2 = "Connecting to server...";
 				this.titleScreenDraw(true);
 			}
-			this.stream = new ClientStream(this, this.openSocket(43594));
+			this.stream = new ClientStream(this, this.openSocket(portOffset + 43594));
 			long var4 = JString.toBase37(arg0);
 			int var6 = (int) (var4 >> 16 & 0x1FL);
 			this.out.pos = 0;
