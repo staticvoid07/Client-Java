@@ -1,0 +1,28 @@
+plugins {
+    id 'java'
+}
+
+// Matches the client so a player with an old-but-working JRE can still start.
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+// No dependencies, deliberately. The launcher is the one artifact that cannot
+// be auto-updated, so it carries no third-party code.
+
+jar {
+    archiveBaseName = 'vortexscape-launcher'
+
+    manifest {
+        attributes(
+            'Main-Class': 'com.vortexscape.launcher.Launcher',
+            'Implementation-Title': 'VortexScape Launcher',
+            'Implementation-Version': project.version
+        )
+    }
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}

@@ -7,3 +7,7 @@ build/
 
 hs_err_pid*.log
 .DS_Store
+
+# launcher/packaging build output
+build/dist/
+packaging/*.ico

@@ -1,5 +1,14 @@
 on:
   push:
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: 'Override the publish channel (live or staging)'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -22,12 +31,124 @@ jobs:
     - name: Obfuscate
       run: gradle proguard
 
+    - name: Build launcher
+      run: gradle :launcher:jar
+
     - name: Upload
       uses: actions/upload-artifact@v4
       with:
         name: client
         path: |
           build/libs/*
+          launcher/build/libs/*
+
+    # ---------------------------------------------------------------------
+    # Publish, so that pushing to this repo actually reaches players. GitHub
+    # stores source, not a runnable jar, so this is the step that turns a push
+    # into something the launcher can download.
+    #
+    #   254                        -> live
+    #   anything else (fix/*, ...) -> staging (prerelease)
+    #
+    # Each channel gets a release under a fixed tag that is overwritten in
+    # place, so the launcher can hold a stable URL:
+    #   https://github.com/<owner>/<repo>/releases/download/live/manifest.json
+    #
+    # Uses the built-in GITHUB_TOKEN - no deploy key or website credentials.
+    # ---------------------------------------------------------------------
+
+    - name: Work out channel and version
+      id: meta
+      run: |
+        set -eu
+        CHANNEL="${{ github.event.inputs.channel }}"
+        if [ -z "$CHANNEL" ]; then
+          if [ "${{ github.ref_name }}" = "254" ]; then CHANNEL=live; else CHANNEL=staging; fi
+        fi
+        echo "channel=$CHANNEL" >> "$GITHUB_OUTPUT"
+        echo "version=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+
+    - name: Generate manifest
+      run: |
+        set -eu
+        CHANNEL='${{ steps.meta.outputs.channel }}'
+        VERSION='${{ steps.meta.outputs.version }}'
+
+        # The plain jar is what is distributed - the exe that ships today has
+        # readable class names, so it is not the proguard output.
+        JAR=build/libs/rs2client.jar
+        SHA=$(sha256sum "$JAR" | cut -d' ' -f1)
+
+        mkdir -p build/dist
+        cp "$JAR" build/dist/rs2client.jar
+        cp launcher/build/libs/vortexscape-launcher.jar build/dist/
+        cat > build/dist/manifest.json <<EOF
+        {
+          "channel": "$CHANNEL",
+          "version": "$VERSION",
+          "jar": "${{ github.server_url }}/${{ github.repository }}/releases/download/$CHANNEL/rs2client.jar",
+          "sha256": "$SHA"
+        }
+        EOF
+        cat build/dist/manifest.json
+
+    - name: Package per-platform downloads
+      run: |
+        set -eu
+        CHANNEL='${{ steps.meta.outputs.channel }}'
+
+        # One zip per platform so the website can hand out the right file directly,
+        # rather than making people pick the correct script out of a combined zip.
+        # Each contains only the launcher - the client itself is downloaded at run
+        # time, which is the whole point of the launcher.
+        rm -rf build/pkg && mkdir -p build/pkg/win build/pkg/lin
+
+        cp launcher/build/libs/vortexscape-launcher.jar build/pkg/win/
+        cp launcher/build/libs/vortexscape-launcher.jar build/pkg/lin/
+
+        if [ "$CHANNEL" = "live" ]; then
+          cp "packaging/launch vortexscape.bat" build/pkg/win/
+          cp packaging/vortexscape.sh build/pkg/lin/
+        else
+          cp "packaging/launch vortexscape staging.bat" build/pkg/win/
+          cp packaging/vortexscape-staging.sh build/pkg/lin/
+        fi
+        chmod +x build/pkg/lin/*.sh
+
+        (cd build/pkg/win && zip -qr "../../dist/vortexscape-$CHANNEL-windows.zip" .)
+        (cd build/pkg/lin && zip -qr "../../dist/vortexscape-$CHANNEL-linux.zip" .)
+        ls -la build/dist/
+
+    - name: Publish to the channel release
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        set -eu
+        CHANNEL='${{ steps.meta.outputs.channel }}'
+        VERSION='${{ steps.meta.outputs.version }}'
+
+        PRERELEASE=""
+        if [ "$CHANNEL" != "live" ]; then PRERELEASE="--prerelease"; fi
+
+        if ! gh release view "$CHANNEL" >/dev/null 2>&1; then
+          gh release create "$CHANNEL" \
+            --title "VortexScape client ($CHANNEL)" \
+            --notes "Rolling $CHANNEL client build." \
+            --target "${{ github.sha }}" \
+            $PRERELEASE
+        fi
+
+        # Order matters: jar FIRST, manifest LAST. The manifest is what tells a
+        # launcher to download, so publishing it ahead of the jar it names leaves
+        # a window where clients fetch a 404 or the previous jar under the new
+        # hash - which fails verification and falls back to the cached copy.
+        gh release upload "$CHANNEL" build/dist/rs2client.jar --clobber
+        gh release upload "$CHANNEL" build/dist/vortexscape-launcher.jar --clobber
+        gh release upload "$CHANNEL" "build/dist/vortexscape-$CHANNEL-windows.zip" --clobber
+        gh release upload "$CHANNEL" "build/dist/vortexscape-$CHANNEL-linux.zip" --clobber
+        gh release upload "$CHANNEL" build/dist/manifest.json --clobber
+
+        gh release edit "$CHANNEL" --notes "Rolling $CHANNEL client build - $VERSION (${{ github.sha }})"
 
   deob-map:
     runs-on: ubuntu-latest
