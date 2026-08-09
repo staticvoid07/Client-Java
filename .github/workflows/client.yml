@@ -1,16 +1,20 @@
 name: build client
 
-# Builds rs2client.jar and emits the manifest the launcher reads. This is the
-# link that turns "pushed to the repo" into "players get it on next launch" -
-# without it the launcher just re-verifies whatever stale jar the website serves.
+# Turns "pushed to this repo" into "players get it on next launch".
+#
+# GitHub holds source, not a runnable jar, so something has to run gradle
+# between a push and there being anything to download. That is this workflow.
 #
 # Channel is chosen by branch:
-#   254                             -> live
-#   anything else (e.g. fix/*)      -> staging
+#   254                        -> live
+#   anything else (fix/*, ...) -> staging
 #
-# Publishing is deliberately left as a separate step (see the end of this file):
-# uploading straight to the live website on every push would ship untested
-# clients to players.
+# Each channel publishes to a release under a FIXED tag ("live" / "staging")
+# that gets overwritten, so the launcher can point at a stable URL:
+#
+#   https://github.com/<owner>/<repo>/releases/download/live/manifest.json
+#
+# Uses the built-in GITHUB_TOKEN - no deploy key or website credentials needed.
 
 on:
   push:
@@ -21,6 +25,9 @@ on:
         description: 'Override the channel (live or staging)'
         required: false
         default: ''
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -39,6 +46,7 @@ jobs:
       - name: Work out the channel and version
         id: meta
         run: |
+          set -eu
           CHANNEL="${{ github.event.inputs.channel }}"
           if [ -z "$CHANNEL" ]; then
             if [ "${{ github.ref_name }}" = "254" ]; then CHANNEL=live; else CHANNEL=staging; fi
@@ -48,19 +56,14 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "channel=$CHANNEL version=$VERSION"
 
-      - name: Generate manifest
+      - name: Stage artifacts and generate the manifest
         run: |
           set -eu
           CHANNEL='${{ steps.meta.outputs.channel }}'
           VERSION='${{ steps.meta.outputs.version }}'
           JAR=build/libs/rs2client.jar
           SHA=$(sha256sum "$JAR" | cut -d' ' -f1)
-
-          if [ "$CHANNEL" = "live" ]; then
-            JAR_URL="https://vortexidle.com/client/rs2client.jar"
-          else
-            JAR_URL="https://vortexidle.com/client/staging/rs2client.jar"
-          fi
+          JAR_URL="${{ github.server_url }}/${{ github.repository }}/releases/download/$CHANNEL/rs2client.jar"
 
           mkdir -p build/dist
           cp "$JAR" build/dist/rs2client.jar
@@ -75,22 +78,38 @@ jobs:
           EOF
           cat build/dist/manifest.json
 
+      - name: Publish to the channel release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -eu
+          CHANNEL='${{ steps.meta.outputs.channel }}'
+          VERSION='${{ steps.meta.outputs.version }}'
+
+          PRERELEASE=""
+          if [ "$CHANNEL" != "live" ]; then PRERELEASE="--prerelease"; fi
+
+          # Fixed per-channel tag, updated in place, so the launcher URL never moves.
+          if ! gh release view "$CHANNEL" >/dev/null 2>&1; then
+            gh release create "$CHANNEL" \
+              --title "VortexScape client ($CHANNEL)" \
+              --notes "Rolling $CHANNEL client build. Updated automatically." \
+              --target "${{ github.sha }}" \
+              $PRERELEASE
+          fi
+
+          # Order matters: the jar goes up FIRST, the manifest LAST. The manifest is
+          # what tells a launcher to download, so publishing it before the jar it
+          # points at leaves a window where every client fetches a 404 or the
+          # previous jar under the new hash - which fails verification.
+          gh release upload "$CHANNEL" build/dist/rs2client.jar --clobber
+          gh release upload "$CHANNEL" build/dist/vortexscape-launcher.jar --clobber
+          gh release upload "$CHANNEL" build/dist/manifest.json --clobber
+
+          gh release edit "$CHANNEL" \
+            --notes "Rolling $CHANNEL client build - $VERSION (${{ github.sha }})"
+
       - uses: actions/upload-artifact@v4
         with:
           name: client-${{ steps.meta.outputs.channel }}-${{ steps.meta.outputs.version }}
           path: build/dist/
-
-# ---------------------------------------------------------------------------
-# Publishing (not wired up yet - needs a deploy key or token in repo secrets).
-#
-# Once you decide how the website gets updated, add a step here that copies
-# build/dist/{rs2client.jar,manifest.json} to:
-#
-#   live     ->  /root/VortexScape-website/client/
-#   staging  ->  /root/VortexScape-website/client/staging/
-#
-# Write the jar FIRST and the manifest SECOND. The manifest is what tells a
-# launcher to download, so publishing it before the jar it points at gives every
-# client a window where it fetches a 404 or, worse, the previous jar under the
-# new hash - which fails verification and falls back to the cached copy.
-# ---------------------------------------------------------------------------

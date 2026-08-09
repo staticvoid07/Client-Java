@@ -21,5 +21,5 @@ fi
 
 exec "$JAVA" -jar "$DIR/vortexscape-launcher.jar" \
     staging \
-    https://vortexidle.com/client/staging/manifest.json \
+    https://github.com/staticvoid07/Client-Java/releases/download/staging/manifest.json \
     10 1 highmem members 32 staging.vortexidle.com
