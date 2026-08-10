@@ -17,7 +17,7 @@ public class ViewBox extends Frame {
 
 	public ViewBox(boolean arg0, int arg1, GameShell arg2, int arg3) {
 		this.shell = arg2;
-		this.setTitle("VortexScape");
+		this.setTitle(Client.windowTitle);
 		this.setResizable(false);
 
 		Image icon = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/icon.png"));

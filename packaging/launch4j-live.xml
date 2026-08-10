@@ -21,7 +21,7 @@
   <icon>vortexscape.ico</icon>
 
   <!-- channel, manifest URL, then the client args (portOffset 0 = live) -->
-  <cmdLine>live https://github.com/staticvoid07/Client-Java/releases/download/live/manifest.json 10 0 highmem members 32 play.vortexidle.com</cmdLine>
+  <cmdLine>live https://github.com/staticvoid07/Client-Java/releases/download/live/manifest.json 10 0 highmem members 32 play.vortexidle.com VortexScape</cmdLine>
 
   <jre>
     <minVersion>1.8.0</minVersion>

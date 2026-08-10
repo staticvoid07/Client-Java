@@ -21,7 +21,7 @@
   <restartOnCrash>false</restartOnCrash>
   <icon>vortexscape.ico</icon>
 
-  <cmdLine>staging https://github.com/staticvoid07/Client-Java/releases/download/staging/manifest.json 10 1 highmem members 32 staging.vortexidle.com</cmdLine>
+  <cmdLine>staging https://github.com/staticvoid07/Client-Java/releases/download/staging/manifest.json 10 1 highmem members 32 staging.vortexidle.com VortexScape-STAGING</cmdLine>
 
   <jre>
     <minVersion>1.8.0</minVersion>

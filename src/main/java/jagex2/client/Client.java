@@ -1277,6 +1277,13 @@ public class Client extends GameShell {
 
 	public static String ip;
 
+	/**
+	 * Window title. Overridable with an optional 7th command line argument so a
+	 * staging client can be told apart from a live one at a glance when several
+	 * are open at once.
+	 */
+	public static String windowTitle = "VortexScape";
+
 	static {
 		int var0 = 2;
 		for (int var1 = 0; var1 < 32; var1++) {
@@ -1298,16 +1305,21 @@ public class Client extends GameShell {
 	public static void main(String[] arg0) {
 		try {
 			System.out.println("RS2 user client - release #" + signlink.clientversion);
-			if (arg0.length == 6) {
+			// The 7th argument (window title) is optional, so existing 6-argument
+			// launchers keep working unchanged.
+			if (arg0.length == 6 || arg0.length == 7) {
 				nodeId = Integer.parseInt(arg0[0]);
 				portOffset = Integer.parseInt(arg0[1]);
 				ip = arg0[5];
+				if (arg0.length == 7 && arg0[6].length() > 0) {
+					windowTitle = arg0[6];
+				}
 				if (arg0[2].equals("lowmem")) {
 					setLowMem();
 				} else if (arg0[2].equals("highmem")) {
 					setHighMem();
 				} else {
-					System.out.println("Usage: node-id, port-offset, [lowmem/highmem], [free/members], storeid");
+					System.out.println("Usage: node-id, port-offset, [lowmem/highmem], [free/members], storeid, ip, [window-title]");
 					return;
 				}
 				if (arg0[3].equals("free")) {
@@ -1315,7 +1327,7 @@ public class Client extends GameShell {
 				} else if (arg0[3].equals("members")) {
 					membersWorld = true;
 				} else {
-					System.out.println("Usage: node-id, port-offset, [lowmem/highmem], [free/members], storeid");
+					System.out.println("Usage: node-id, port-offset, [lowmem/highmem], [free/members], storeid, ip, [window-title]");
 					return;
 				}
 				signlink.storeid = Integer.parseInt(arg0[4]);
@@ -1323,7 +1335,7 @@ public class Client extends GameShell {
 				Client var1 = new Client();
 				var1.initApplication(765, 503);
 			} else {
-				System.out.println("Usage: node-id, port-offset, [lowmem/highmem], [free/members], storeid");
+				System.out.println("Usage: node-id, port-offset, [lowmem/highmem], [free/members], storeid, ip, [window-title]");
 			}
 		} catch (Exception var3) {
 		}
