@@ -10,4 +10,3 @@ hs_err_pid*.log
 
 # launcher/packaging build output
 build/dist/
-packaging/*.ico

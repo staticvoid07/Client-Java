@@ -92,6 +92,29 @@ jobs:
         EOF
         cat build/dist/manifest.json
 
+    - name: Build the Windows exe
+      run: |
+        set -eu
+        CHANNEL='${{ steps.meta.outputs.channel }}'
+
+        # Launch4j runs on Linux and emits a Windows exe, so this does not need a
+        # Windows runner. It wraps the launcher, not the client, which is why the
+        # exe is ~90 KB instead of the ~790 KB the old hand-built one was, and why
+        # it never needs rebuilding when the client changes.
+        curl -sL --retry 3 -o l4j.tgz \
+          "https://sourceforge.net/projects/launch4j/files/launch4j-3/3.50/launch4j-3.50-linux-x64.tgz/download"
+        mkdir -p l4j && tar xzf l4j.tgz -C l4j --strip-components=1
+
+        mkdir -p build/dist
+        if [ "$CHANNEL" = "live" ]; then
+          java -jar l4j/launch4j.jar packaging/launch4j-live.xml
+          test -f build/dist/vortexscape.exe
+        else
+          java -jar l4j/launch4j.jar packaging/launch4j-staging.xml
+          test -f build/dist/vortexscape-staging.exe
+        fi
+        ls -la build/dist/
+
     - name: Package per-platform downloads
       run: |
         set -eu
@@ -146,6 +169,11 @@ jobs:
         gh release upload "$CHANNEL" build/dist/vortexscape-launcher.jar --clobber
         gh release upload "$CHANNEL" "build/dist/vortexscape-$CHANNEL-windows.zip" --clobber
         gh release upload "$CHANNEL" "build/dist/vortexscape-$CHANNEL-linux.zip" --clobber
+        if [ "$CHANNEL" = "live" ]; then
+          gh release upload "$CHANNEL" build/dist/vortexscape.exe --clobber
+        else
+          gh release upload "$CHANNEL" build/dist/vortexscape-staging.exe --clobber
+        fi
         gh release upload "$CHANNEL" build/dist/manifest.json --clobber
 
         gh release edit "$CHANNEL" --notes "Rolling $CHANNEL client build - $VERSION (${{ github.sha }})"
